@@ -1,0 +1,31 @@
+{
+  "policy_version": "1.0.0",
+  "description": "Heuristic ranking weights for Dark Store Conditional ETC Engine",
+
+  "sku_process_time": 8.5,
+
+  "row_change_penalty": 12.0,
+
+  "restock_delay_multiplier": 2.8,
+
+  "cooler_row_constant": 15.0,
+
+  "backlog_threshold_seconds": 180,
+
+  "cooler_rows": ["C", "D"],
+
+  "store_layout": {
+    "rows": ["A", "B", "C", "D", "E", "F"],
+    "columns_per_row": 10,
+    "picker_speed_cols_per_second": 1.2
+  },
+
+  "notes": {
+    "sku_process_time": "Seconds to scan and pick one SKU from a shelf slot",
+    "row_change_penalty": "Extra seconds added per unique row transition (aisle change)",
+    "restock_delay_multiplier": "Multiplier applied to base ETC when a required row is under restock (one-end access)",
+    "cooler_row_constant": "Flat seconds added per order line that touches a cooler row (C or D)",
+    "backlog_threshold_seconds": "Total ETC of Pending Pool (seconds) that triggers heuristic ranking. Default = 180s (3 minutes)",
+    "cooler_rows": "Row labels that carry the cooler_row_constant penalty"
+  }
+}

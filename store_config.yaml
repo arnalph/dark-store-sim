@@ -1,0 +1,86 @@
+layout:
+  rows: 6
+  skus_per_row: 5
+
+timing:
+  switch_sku_seconds: 0.4
+  switch_row_seconds: 1.2
+
+restocking:
+  threshold: 3
+  restock_duration_seconds: 8
+  units_to_add: 20
+
+pickers:
+  initial_count: 5
+
+special_skus:
+  - Milk
+  - Yogurt
+  - Butter
+  - Cheese
+  - Chicken
+
+inventory:
+  - name: Milk
+    units: 15
+  - name: Yogurt
+    units: 12
+  - name: Butter
+    units: 10
+  - name: Cheese
+    units: 8
+  - name: Bread
+    units: 20
+  - name: Chicken
+    units: 13
+  - name: Eggs
+    units: 18
+  - name: Juice
+    units: 14
+  - name: Cereal
+    units: 16
+  - name: Pasta
+    units: 22
+  - name: Rice
+    units: 25
+  - name: Chips
+    units: 30
+  - name: Soda
+    units: 28
+  - name: Water
+    units: 40
+  - name: Coffee
+    units: 12
+  - name: Tea
+    units: 15
+  - name: Chocolate
+    units: 20
+  - name: Biscuits
+    units: 18
+  - name: Jam
+    units: 10
+  - name: Honey
+    units: 8
+  - name: Nuts
+    units: 14
+  - name: Beans
+    units: 22
+  - name: Soup
+    units: 16
+  - name: Tuna
+    units: 12
+  - name: Sauce
+    units: 18
+  - name: Oil
+    units: 15
+  - name: Vinegar
+    units: 10
+  - name: Salt
+    units: 30
+  - name: Pepper
+    units: 25
+  - name: Sugar
+    units: 20
+  - name: Flour
+    units: 18

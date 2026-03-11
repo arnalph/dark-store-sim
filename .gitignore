@@ -1,0 +1,10 @@
+# SQLite database and temporary files
+dark_store.db
+dark_store.db-shm
+dark_store.db-wal
+
+# Python environment & cache
+__pycache__/
+*.pyc
+.env
+.streamlit/secrets.toml
