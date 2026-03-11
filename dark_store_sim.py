@@ -117,31 +117,49 @@ def pending_pool_etc_total(orders: list) -> float:
 # ─────────────────────────────────────────────
 # DATABASE SETUP
 # ─────────────────────────────────────────────
-DB_PATH   = "dark_store.db"
-DB_URL    = f"sqlite:///{DB_PATH}"
+# ── SQLAlchemy & DB Connection ──────────────────────────────────────────────
 
-# WAL mode + busy-timeout for safe concurrent writes from background threads
-engine = create_engine(
-    DB_URL,
-    connect_args={"check_same_thread": False, "timeout": 30},
-    pool_size=5,
-    max_overflow=10,
-)
+DB_PATH = "dark_store.db"
+    
+# 1. Detection: Use Supabase if secrets exist, else fall back to local SQLite
+if "postgres" in st.secrets:
+    p = st.secrets["postgres"]
+    # Supabase Connection URI
+    DB_URL = f"postgresql://{p.user}:{p.password}@{p.host}:{p.port}/{p.dbname}"
+    
+    # 2. Configure engine for PostgreSQL (Supabase)
+    engine = create_engine(
+        DB_URL,
+        pool_size=10,        # Keeps 10 connections open
+        max_overflow=20,     # Allows up to 20 extra if busy
+        pool_recycle=300,    # Reconnect every 5 mins to prevent "idle" timeouts
+        pool_pre_ping=True,  # Checks if connection is alive before using it
+        connect_args={'sslmode': 'require'}  # MANDATORY for Supabase
+    )
+else:
+    # Local: SQLite Fallback
+    DB_URL = f"sqlite:///{DB_PATH}"
+    engine = create_engine(
+        DB_URL, 
+        connect_args={"check_same_thread": False, "timeout": 30}
+    )
 
-@event.listens_for(engine, "connect")
-def _set_sqlite_pragmas(dbapi_conn, _rec):
-    cur = dbapi_conn.cursor()
-    cur.execute("PRAGMA journal_mode=WAL")
-    cur.execute("PRAGMA synchronous=NORMAL")
-    cur.execute("PRAGMA busy_timeout=10000")
-    cur.close()
+    # SQLite Specific Events (only needed for local)
+    @event.listens_for(engine, "connect")
+    def _set_sqlite_pragmas(dbapi_conn, _rec):
+        if "sqlite" in DB_URL:
+            cur = dbapi_conn.cursor()
+            cur.execute("PRAGMA journal_mode=WAL")
+            cur.execute("PRAGMA synchronous=NORMAL")
+            cur.execute("PRAGMA busy_timeout=10000")
+            cur.close()
 
 Base = declarative_base()
 SessionFactory = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 @contextmanager
 def get_db() -> Session:
-    """Thread-safe session context manager with full rollback on error."""
+    """Session context manager (Works for both SQLite and Postgres)."""
     session = SessionFactory()
     try:
         yield session
@@ -152,8 +170,6 @@ def get_db() -> Session:
         raise
     finally:
         session.close()
-
-
 # ── ORM Models ────────────────────────────────────────────────────────────────
 
 class DBOrder(Base):
@@ -2158,7 +2174,7 @@ def render_slotting_tab(store: DarkStore):
             st.success(f"✅ **{n_completed}** completed orders available for analysis.")
 
     with col_ctrl:
-        max_window  = min(n_completed, 400)
+        max_window  = 400 #min(n_completed, 400)
         default_win = min(200, max_window)
         lookback = st.slider(
             "Lookback Window (Orders)",
